@@ -1,9 +1,17 @@
+
+# ignore folders that aren't scripts
+packrat/
+packrat/lib*/
+Figures/
+
+
 # History files
 .Rhistory
 .Rapp.history
 
 # Session Data files
 .RData
+.Rprofile
 
 # User-specific files
 .Ruserdata
@@ -37,3 +45,4 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
