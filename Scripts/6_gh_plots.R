@@ -232,7 +232,7 @@ ggboxplot(gh.mg, x = "sampling", y = "dryleaf",
           panel.labs = list(tx=c("Ambient", "Drought", "Wet")),
           ggtheme = theme_pubr())+
   geom_text(data = dryleaf.sum, aes(y=yloc, label = label))
-ggsave("Figures/leafbiomass.tiff", dpi=1200)
+ggsave("Figures/leafbiomass.tiff", height = 4, width = 5, dpi=1200)
 
 ##Total Root Length Boxplot
 #create summary of variable and arrange desc by mean
