@@ -8,6 +8,7 @@ library(tidyverse)
 library(mvnormtest)
 library(vegan)
 library(ggpubr)
+library(psych)
 
 #bring the data in
 gh.temp <- read_csv(file = "Data/soil_temp_daily.csv")
