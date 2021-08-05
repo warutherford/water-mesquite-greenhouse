@@ -107,7 +107,7 @@ ggbarplot(lda.tbl, x = "measurement", y = "LD1",
           xlab = "",
           legend = "none",
           rotate = TRUE,
-          ggtheme = theme_pubr())+
+          ggtheme = theme_pubr(base_size = 20))+
   labs_pubr(base_size = 20)
 ggsave("Figures/LD1_loadings_ascend.tiff", dpi = 1200, scale = 2)
 
@@ -126,7 +126,7 @@ ggbarplot(lda.tbl.2, x = "measurement", y = "LD2",
           xlab = "",
           legend = "none",
           rotate = TRUE,
-          ggtheme = theme_pubr())+
+          ggtheme = theme_pubr(base_size = 20))+
   labs_pubr(base_size = 20)
 ggsave("Figures/LD2_loadings_ascend.tiff", dpi = 1200, scale = 2)
 
