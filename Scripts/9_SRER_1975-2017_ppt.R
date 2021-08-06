@@ -177,6 +177,10 @@ cdd.2<-cdd.1 %>%
   summarise(meancdd = mean(cddlength))
 
 #july ppt characteristics
+july_2017_tot <- july.2 %>%
+  dplyr::filter(year == 2017) %>%
+  summarize(july_2017 = sum(amt_mm_mean, na.rm = TRUE))
+
 #defining 'event' as > 0.5 mm
 july.3 <- mutate(july.2,
                  amt_mm_mean = ifelse(amt_mm_mean >= 0.5, amt_mm_mean, 0)) #remove events less than 0.5 mm
@@ -249,6 +253,10 @@ exptot.1 <- exp.2 %>%
   summarize(expppt = sum(amt_mm_mean, na.rm=TRUE))
 
 #exp ppt characteristics
+exp_2017_tot <- exp.2 %>%
+  dplyr::filter(year == 2017) %>%
+  summarize(exp_2017 = sum(amt_mm_mean, na.rm = TRUE))
+
 #defining 'event' as > 0.5 mm
 exp.3 <- mutate(exp.2,
                  amt_mm_mean = ifelse(amt_mm_mean >= 0.5, amt_mm_mean, 0)) #remove events less than 0.5 mm
@@ -337,6 +345,10 @@ montot.1 <- mon.2 %>%
   summarize(monppt = sum(amt_mm_mean, na.rm=TRUE))
 
 #mon ppt characteristics
+mon_2017_tot <- mon.2 %>%
+  dplyr::filter(year == 2017) %>%
+  summarize(mon_2017 = sum(amt_mm_mean, na.rm = TRUE))
+
 #defining 'event' as > 0.5 mm
 mon.3 <- mutate(mon.2,
                 amt_mm_mean = ifelse(amt_mm_mean >= 0.5, amt_mm_mean, 0)) #remove events less than 0.5 mm
