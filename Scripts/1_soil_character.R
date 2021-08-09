@@ -107,6 +107,13 @@ clay.test$p.value
 clay.test$estimate
 clay.test$stderr
 
+#thera r
+theta.test <- t.test(thetar ~ depth, data = soil)
+theta.test$p.value
+theta.test$estimate
+theta.test$stderr
+
+
 #type
 type.test <- t.test(type ~ depth, data = soil)
 type.test$p.value

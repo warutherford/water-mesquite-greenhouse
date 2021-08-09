@@ -18,8 +18,12 @@ glimpse(srer_rain)
 
 # filter dates to start of ppt events monsoon 2017
 monsoon_2017 <- srer_rain %>% 
-  dplyr::dplyr::select(date, temp, rain) %>% 
+  dplyr::select(date, temp, rain) %>% 
   dplyr::filter(date >= "2017-07-09" & date <= "2017-08-03")
+
+monsoon_2017_tot <- srer_rain %>% 
+  dplyr::select(date, temp, rain) %>% 
+  dplyr::filter(date >= "2017-07-01" & date <= "2017-07-31")
 
 # make precip figure
 ppt_bar_monsoon <- monsoon_2017 %>% 
