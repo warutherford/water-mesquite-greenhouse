@@ -1,6 +1,6 @@
 
 # ignore folders that aren't scripts
-Figures/*.tiff
+Figures/*
 packrat/
 renv/
 
