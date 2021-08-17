@@ -18,6 +18,6 @@ Shrub seedling establishment in drylands characterized by low and variable rainf
 ### Folder Info/Details
 All scripts for analyses in the paper are in the `Scripts` directory. For details on a specific script and it's purpose, see the `Scripts/README.md`.
 
-Data for all analyses are in the `Data` directory.
+Data for all analyses are in the `Data` directory. For details on a specific data set, see the `Data/README.md`.
 
-Statistical outputs (descriptive stats, MANOVA, ANOVA, and post-hoc tests) are in the `Outputs` directory.
+Statistical outputs (descriptive stats, MANOVA, ANOVA, and post-hoc tests) are in the `Outputs` directory. For details on a specific stat output file, see the `Outputes/README.md`. 
