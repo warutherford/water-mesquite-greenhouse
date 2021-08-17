@@ -19,7 +19,7 @@ library(lubridate)
 library(ggpubr)
 
 # bring the data in
-srer_daily <- read_csv(file = "Data/SRER_daily_1975-2017.csv")
+srer_daily <- read_csv(file = "Data/SRER_daily_1975-2020.csv")
 
 # look at data
 glimpse(srer_daily)

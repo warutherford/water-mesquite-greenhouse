@@ -1,9 +1,8 @@
 
 # ignore folders that aren't scripts
+Figures/*
 packrat/
-packrat/lib*/
-Figures/
-
+renv/
 
 # History files
 .Rhistory
