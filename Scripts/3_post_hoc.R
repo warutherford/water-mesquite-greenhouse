@@ -6,6 +6,9 @@
 
 ##load packages
 library(tidyverse)
+library(pastecs)
+library(rcompanion)
+library(Rmisc)
 library(agricolae)
 library(emmeans)
 library(lattice)
@@ -16,6 +19,68 @@ library(multcompView)
 #bring the data in
 gh <- read.csv(file = "Data/prve_gh_master_data.csv")
 gh$sampling <- as.factor(gh$sampling)#make sampling period a factor
+
+#get descriptive stats by tx and sampling periods
+describeBy(gh, list(gh$tx, gh$sampling))
+
+#get CV by specific tx and sampling period, throws warning for NAs/missing values
+gh.cv.11.amb <- gh %>% 
+  group_by(tx, sampling) %>% 
+  dplyr::filter(sampling == "Day 11" & tx == "Ambient") %>% 
+  stat.desc() %>% 
+  mutate(tx = "Ambient", sampling = "Day 11")
+
+gh.cv.22.amb <- gh %>% 
+  group_by(tx, sampling) %>% 
+  dplyr::filter(sampling == "Day 22" & tx == "Ambient") %>% 
+  stat.desc() %>% 
+  mutate(tx = "Ambient", sampling = "Day 22")
+
+gh.cv.11.dt <- gh %>% 
+  group_by(tx, sampling) %>% 
+  dplyr::filter(sampling == "Day 11" & tx == "Drought") %>% 
+  stat.desc() %>% 
+  mutate(tx = "Drought", sampling = "Day 11")
+
+gh.cv.22.dt <- gh %>% 
+  group_by(tx, sampling) %>% 
+  dplyr::filter(sampling == "Day 22" & tx == "Drought") %>% 
+  stat.desc() %>% 
+  mutate(tx = "Drought", sampling = "Day 22")
+
+gh.cv.11.wet <- gh %>% 
+  group_by(tx, sampling) %>% 
+  dplyr::filter(sampling == "Day 11" & tx == "Wet") %>% 
+  stat.desc() %>% 
+  mutate(tx = "Wet", sampling = "Day 11")
+
+gh.cv.22.wet <- gh %>% 
+  group_by(tx, sampling) %>% 
+  dplyr::filter(sampling == "Day 22" & tx == "Wet") %>% 
+  stat.desc() %>% 
+  mutate(tx = "Wet", sampling = "Day 22")
+
+gh.cv <- rbind(gh.cv.11.amb, gh.cv.22.amb,
+               gh.cv.11.dt, gh.cv.22.dt,
+               gh.cv.11.wet, gh.cv.22.wet) %>% 
+  rownames_to_column("stat") %>% 
+  dplyr::filter(str_detect(stat, "coef.var")) %>% 
+  pivot_longer(cols = -c(stat, tx, sampling), names_to = "measurement") %>% 
+  arrange(measurement)
+
+#write.csv(gh.cv, file = "Output/gh_cv.csv", row.names = FALSE)
+
+#get CI by tx and sampling, changing Y variable for each seedling metric (n=32)
+rcompanion::groupwiseMean(dryleaf ~ tx + sampling,
+                          data = gh,
+                          conf = 0.95,
+                          digits = 5)
+
+#get CI by tx and sampling, changing Y variable for each seedling metric (n=32)
+#alternate method
+Rmisc::group.CI(dryleaf ~ tx + sampling,
+                data = gh,
+                ci = 0.95)
 
 #create a matrix of only y-variables for manova
 Yvar = as.matrix(cbind(gh[,c(4:35)]))
@@ -333,40 +398,40 @@ group.cond <- tuk.all[[28]]$groups
 group.fivegwc <- tuk.all[[30]]$groups
 group.twentygwc <- tuk.all[[31]]$groups
 
-sink(file = "Output/gh_stats_tukey.txt")#create txt file
-
-group.totrootlnth
-group.surfarea
-group.avgdiam
-group.rootvol
-group.crossings
-group.forks
-group.tips
-group.maxht
-group.truelvs
-group.totlflts
-group.lflnth
-group.light
-group.cnode
-group.thorns
-group.dryleaf
-group.lfwtr
-group.wetsdling
-group.drysdling
-group.sdlingwtr
-group.taprootlnth
-group.coarserootdiam
-group.fineroots
-group.rootwt
-group.rootshoot
-group.sla
-group.wp
-group.anet
-group.cond
-group.trans
-group.fivegwc
-group.twentygwc
-group.agr
-
-sink()#write to .txt file
-closeAllConnections()# sends code output back to console
+# sink(file = "Output/gh_stats_tukey.txt")#create txt file
+# 
+# group.totrootlnth
+# group.surfarea
+# group.avgdiam
+# group.rootvol
+# group.crossings
+# group.forks
+# group.tips
+# group.maxht
+# group.truelvs
+# group.totlflts
+# group.lflnth
+# group.light
+# group.cnode
+# group.thorns
+# group.dryleaf
+# group.lfwtr
+# group.wetsdling
+# group.drysdling
+# group.sdlingwtr
+# group.taprootlnth
+# group.coarserootdiam
+# group.fineroots
+# group.rootwt
+# group.rootshoot
+# group.sla
+# group.wp
+# group.anet
+# group.cond
+# group.trans
+# group.fivegwc
+# group.twentygwc
+# group.agr
+# 
+# sink()#write to .txt file
+# closeAllConnections()# sends code output back to console

@@ -13,7 +13,7 @@ library(ggpubr)
 #set graphing/plotting theme
 theme_set(theme_classic())
 
-# Load the data without pot# or PCAs
+# Load the data without pot# or exploratory PCAs
 gh <- read.csv(file = "Data/prve_gh_master_data.csv", 
                colClasses=c("NULL", NA,NA,NA,NA,
                             NA,NA,NA,NA,NA,NA,NA,
@@ -160,138 +160,8 @@ ggplot(lda.data.all, aes(LD1, LD2)) +
   scale_fill_manual(values = c("Ambient" = "grey30",
                                  "Drought" = "#DB4325",
                                  "Wet" = "Blue"))+
-  #ylim(-15,15)+
-  #xlim(-15,18)+
-  #ggtitle("LDA with All Data")+
-  # theme(legend.position = c(0.1, 0.9),
-  #       legend.title = element_blank(),
-  #       legend.margin = margin(t=0,unit='cm'),
-  #       plot.title = element_text(hjust = 0.5))+
   theme_pubr(legend = "none")+
   guides(fill=FALSE)
 ggsave("Figures/LDA_all.tiff", height = 4, width = 5, dpi = 1200) #save figure
 
-#####Sampling Period 1 Disc Analysis####
-# Remove variables with no variance and filter by sampling period 1
-samp1.gh<- gh_na %>% 
-  dplyr::select(-light) %>% 
-  dplyr::filter(sampling =="1") %>%
-  dplyr::select(-sampling)
 
-# Create random set of data
-set.seed(2)
-
-# Make training data 
-training.samples <- samp1.gh$tx %>%
-  createDataPartition(p = 0.8, list = FALSE)
-
-# Split training (80%) and test set (20%)
-train.data <- samp1.gh[training.samples, ]
-test.data <- samp1.gh[-training.samples, ]
-
-# Estimate preprocessing parameters, normalize data
-preproc.param <- train.data %>% 
-  preProcess(method = c("center", "scale"))
-
-# Transform the data using the estimated parameters
-train.transformed <- preproc.param %>% predict(train.data)
-test.transformed <- preproc.param %>% predict(test.data)
-
-# Fit the model, Linear Disc Analysis
-model1 <- lda(tx~., data = train.transformed)
-model1
-
-# Make predictions
-predictions <- model1 %>% predict(test.transformed)
-
-# Model accuracy, closer 1 the better
-mean(predictions$class==test.transformed$tx)
-
-#make tx predictions
-predictions <- model1 %>% predict(test.transformed)
-names(predictions)
-
-# Predicted classes
-head(predictions$class, 6)
-
-# Predicted probabilities of class memebership.
-head(predictions$posterior, 6) 
-
-# Linear discriminants
-head(predictions$x, 3) 
-
-#Graph Sampling period 1 LDA by points with ggplot2
-lda.data1 <- cbind(train.transformed, predict(model1)$x)
-ggplot(lda.data1, aes(LD1, LD2)) +
-  geom_point(aes(color = tx))+
-  stat_conf_ellipse(aes(color = tx))+
-  scale_colour_manual(values = c("Ambient" = "grey30",
-                                 "Drought" = "#DB4325",
-                                 "Wet" = "Blue"))+
-  ggtitle("Sampling Period 1 LDA")+
-  theme(legend.position = "bottom",
-        legend.title = element_blank(),
-        legend.margin = margin(t=0,unit='cm'),
-        plot.title = element_text(hjust = 0.5))
- 
-###Sampling Period 2 Disc Analysis####
-# Remove variables with no variance and filter by sampling period 2
-samp2.gh<- gh_na %>% 
-  dplyr::filter(sampling =="2") %>%
-  dplyr::select(-sampling)
-
-# Create random set of data
-set.seed(2)
-
-# Make training data 
-training.samples <- samp2.gh$tx %>%
-  createDataPartition(p = 0.8, list = FALSE)
-
-# Split training (80%) and test set (20%)
-train.data <- samp2.gh[training.samples, ]
-test.data <- samp2.gh[-training.samples, ]
-
-# Estimate preprocessing parameters, normalize data
-preproc.param <- train.data %>% 
-  preProcess(method = c("center", "scale"))
-
-# Transform the data using the estimated parameters
-train.transformed <- preproc.param %>% predict(train.data)
-test.transformed <- preproc.param %>% predict(test.data)
-
-# Fit the model, Linear Disc Analysis
-model2 <- lda(tx~., data = train.transformed)
-model2
-
-# Make predictions
-predictions <- model2 %>% predict(test.transformed)
-
-# Model accuracy, closer to 1 the beter
-mean(predictions$class==test.transformed$tx)
-
-#make tx predictions
-predictions <- model2 %>% predict(test.transformed)
-names(predictions)
-
-# Predicted classes
-head(predictions$class, 6)
-
-# Predicted probabilities of class memebership.
-head(predictions$posterior, 6) 
-
-# Linear discriminants
-head(predictions$x, 3) 
-
-#Graph Sampling period 2 LDA by points with ggplot2
-lda.data2 <- cbind(train.transformed, predict(model2)$x)
-ggplot(lda.data2, aes(LD1, LD2)) +
-  geom_point(aes(color = tx)) +
-  stat_conf_ellipse(aes(color = tx))+
-  scale_colour_manual(values = c("Ambient" = "grey30",
-                                 "Drought" = "#DB4325",
-                                 "Wet" = "Blue"))+
-  ggtitle("Sampling Period 2 LDA")+
-  theme(legend.position = "bottom",
-        legend.title = element_blank(),
-        legend.margin = margin(t=0,unit='cm'),
-        plot.title = element_text(hjust = 0.5))

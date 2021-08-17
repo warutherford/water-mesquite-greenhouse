@@ -43,53 +43,28 @@ for (i in 4:35){print(shapiro.test(gh[,i]))}
 for (i in 4:35){print(BoxCox(gh[,i], lambda = "auto"))}
 
 #Save stat outputs to text file#
-sink(file = "Output/gh_stats.txt")#create txt file
-summary(fit, test="Pillai")#get manova summary
-summary.aov(object = fit)#get anovas
-sink()#write to .txt file
+# sink(file = "Output/gh_stats.txt")#create txt file
+# summary(fit, test="Pillai")#get manova summary
+# summary.aov(object = fit)#get anovas
+# sink()#write to .txt file
+# 
+# closeAllConnections()# sends code output back to console
 
-closeAllConnections()# sends code output back to console
-
-##Anova and Manova with root response variables tests
+##Anova with root volume response variable
+# Pull out root variables
 roots_var <- gh %>% 
-  select(tx, sampling, surfarea, avgdiam, rootvol, taprootlnth, coarserootdiam, fineroots, rootwt)
+  dplyr::select(tx, sampling, surfarea, avgdiam, rootvol, taprootlnth,
+                coarserootdiam, fineroots, rootwt)
 
+# standardize for comparisons
 roots_norm <- as.data.frame(scale(roots_var[,3:9]))
 
+# bring back tx and sampling
 roots_norm <- cbind(roots_norm, roots_var[,1:2])
 
-roots_norm <- roots_norm %>% 
-  mutate(sa_to_v = surfarea/rootvol,
-         len_diam = taprootlnth/avgdiam)
-
-reg <- lm(avgdiam ~ taprootlnth, data = roots_norm)
-summary(reg)
-coefficients(reg)
-
-reg2 <- lm(rootvol ~ taprootlnth, data = roots_norm)
-summary(reg2)
-coefficients(reg2)
-
-reg3 <- lm(rootvol ~ avgdiam, data = roots_norm)
-summary(reg3)
-coefficients(reg3)
-
-plot(y = roots_norm$rootvol, x = roots_norm$avgdiam)
-abline(reg3, col = "blue")
-
-plot(y = roots_norm$rootvol, x = roots_norm$taprootlnth)
-abline(reg2, col = "blue")
-
-plot(y = roots_norm$avgdiam, x = roots_norm$taprootlnth)
-abline(reg, col = "blue")
-
+# look at descriptive stats
 psych::describeBy(roots_norm, list(roots_norm$tx, roots_norm$sampling))
 
-summary(aov(rootvol ~ sampling*tx + taprootlnth, data = roots_norm))
-summary(aov(rootvol ~ sampling*tx + avgdiam, data = roots_norm))
-summary(aov(rootvol ~ sampling*tx + taprootlnth + avgdiam + surfarea, data = roots_norm))
+# run anova
 summary(aov(rootvol ~ sampling*tx + taprootlnth + avgdiam, data = roots_norm))
 
-fit_roots <- manova(as.matrix(roots_norm[,c(2,4)]) ~ tx + sampling + tx*sampling, data = gh)
-summary(fit_roots, test="Pillai")#manova
-summary.aov(fit_roots)#anovas

@@ -30,86 +30,6 @@ gh$sampling[gh$sampling == "2"] <- "Day 22"
 gh$sampling <- as.factor(gh$sampling)#make sampling period a factor
 gh$tx <- as.factor(gh$tx)#make tx a factor
 
-#get descriptive stats by tx and sampling periods
-describeBy(gh, list(gh$tx, gh$sampling))
-
-#get CV by specific tx and sampling period
-gh.cv.11.amb <- gh %>% 
-  group_by(tx, sampling) %>% 
-  dplyr::filter(sampling == "Day 11" & tx == "Ambient") %>% 
-  stat.desc() %>% 
-  mutate(tx = "Ambient", sampling = "Day 11")
-
-gh.cv.22.amb <- gh %>% 
-  group_by(tx, sampling) %>% 
-  dplyr::filter(sampling == "Day 22" & tx == "Ambient") %>% 
-  stat.desc() %>% 
-  mutate(tx = "Ambient", sampling = "Day 22")
-
-gh.cv.11.dt <- gh %>% 
-  group_by(tx, sampling) %>% 
-  dplyr::filter(sampling == "Day 11" & tx == "Drought") %>% 
-  stat.desc() %>% 
-  mutate(tx = "Drought", sampling = "Day 11")
-
-gh.cv.22.dt <- gh %>% 
-  group_by(tx, sampling) %>% 
-  dplyr::filter(sampling == "Day 22" & tx == "Drought") %>% 
-  stat.desc() %>% 
-  mutate(tx = "Drought", sampling = "Day 22")
-
-gh.cv.11.wet <- gh %>% 
-  group_by(tx, sampling) %>% 
-  dplyr::filter(sampling == "Day 11" & tx == "Wet") %>% 
-  stat.desc() %>% 
-  mutate(tx = "Wet", sampling = "Day 11")
-
-gh.cv.22.wet <- gh %>% 
-  group_by(tx, sampling) %>% 
-  dplyr::filter(sampling == "Day 22" & tx == "Wet") %>% 
-  stat.desc() %>% 
-  mutate(tx = "Wet", sampling = "Day 22")
-
-gh.cv <- rbind(gh.cv.11.amb, gh.cv.22.amb,
-               gh.cv.11.dt, gh.cv.22.dt,
-               gh.cv.11.wet, gh.cv.22.wet) %>% 
-  rownames_to_column("stat") %>% 
-  dplyr::filter(str_detect(stat, "coef.var")) %>% 
-  pivot_longer(cols = -c(stat, tx, sampling), names_to = "measurement") %>% 
-  arrange(measurement)
-
-#write.csv(gh.cv, file = "Output/gh_cv.csv", row.names = FALSE)
-
-#get CI by tx and sampling, changing Y variable for each seedling metric (n=32)
-rcompanion::groupwiseMean(dryleaf ~ tx + sampling,
-              data = gh,
-              conf = 0.95,
-              digits = 5)
-
-#get CI by tx and sampling, changing Y variable for each seedling metric (n=32)
-#alternate method
-Rmisc::group.CI(dryleaf ~ tx + sampling,
-                data = gh,
-                ci = 0.95)
-
-###Fresh Weight Scatter Plot
-wtsd_plot <- ggscatter(gh, x = "wetsdling", y = "rootwt", color = "tx",
-                       shape = "tx",
-                       size = 3,
-                       scales = "free",
-                       palette = c("grey30", "#DB4325", "blue1"),
-                       add = "reg.line",
-                       add.params = list(color = "black", fill = "grey70"), # Add regression line
-                       conf.int = TRUE,
-                       xlab = "Fresh Weight (g)",
-                       ylab = "Total Root Weight (g)",
-                       legend.title = "Treatment",
-                       legend = "bottom",
-                       facet.by = "sampling", #use if want to separate between sampling period
-                       nrow = 2) + 
-  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~"))) # Add R2
-
-wtsd_plot
 
 ##AGR Boxplot
 #create summary of variable and arrange desc by mean
@@ -712,6 +632,7 @@ ggboxplot(ecophys, x = "sampling", y = "trans",
   geom_text(data = trans.sum, aes(y=yloc, label = label))
 ggsave("Figures/trans.tiff", height = 4, width = 5, dpi=1200)
 
+## Reality check ecophys relationships, not used in paper
 # scatter plot of transpiration and anet by treatment 
 # as expected, anet goes up so does transpiration, patterns same as boxplots
 ggscatter(ecophys, x = "trans", y = "anet",

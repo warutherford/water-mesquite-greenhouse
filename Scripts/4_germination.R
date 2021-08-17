@@ -9,7 +9,7 @@ library(tidyverse)
 library(agricolae)
 library(psych)
 
-#bring the data in
+#read in the data
 germ <- read.csv(file = "Data/germination.csv")
 germ$sampling <- as.factor(germ$sampling)#make sampling period a factor
 germ$tx <- as.factor(germ$tx)#make sampling period a factor
