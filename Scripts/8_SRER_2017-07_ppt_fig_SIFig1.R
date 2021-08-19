@@ -25,6 +25,20 @@ monsoon_2017_tot <- srer_rain %>%
   dplyr::select(date, temp, rain) %>% 
   dplyr::filter(date >= "2017-07-01" & date <= "2017-07-31")
 
+# count events in range >0.5mm (22)
+tot_water_days <- monsoon_2017 %>% 
+  dplyr::select(rain) %>% 
+  dplyr::filter(rain >= 0.5) %>% 
+  dplyr::summarise(tot_event = n())
+
+# watering amounts calculations
+tx_amts <- monsoon_2017 %>% 
+  dplyr::select(rain) %>% 
+  dplyr::filter(rain > 0) %>%
+  summarise(mean = round(mean(rain)), #mean ambient
+            mean_wet = round(mean(rain) + (mean(rain) - (mean(rain)*0.65))),# add 65% of ambient to mean ambient
+            mean_dry = round(mean(rain) - (mean(rain)*0.65))) # reduce ambient by 65% (conversely, 35% of ambient)
+
 # make precip figure
 ppt_bar_monsoon <- monsoon_2017 %>% 
   ggplot()+
@@ -52,17 +66,5 @@ ppt_bar_monsoon
 
 ggsave("Figures/2017-07_ppt_monsoon.tiff", plot = ppt_bar_monsoon, height = 4, width = 5, dpi=1200)
 
-# count events in range >0.5mm (e.g., 22)
-tot_water_days <- monsoon_2017 %>% 
-  dplyr::select(rain) %>% 
-  dplyr::filter(rain >= 0.5) %>% 
-  summarise(tot_event = n())
 
-# watering amounts calculations
-tx_amts <- monsoon_2017 %>% 
-  dplyr::select(rain) %>% 
-  dplyr::filter(rain > 0) %>%
-  summarise(mean = round(mean(rain)), #mean ambient
-            mean_wet = round(mean(rain) + (mean(rain) - (mean(rain)*0.65))),# add 65% of ambient to mean ambient
-            mean_dry = round(mean(rain) - (mean(rain)*0.65))) # reduce ambient by 65% (conversely, 35% of ambient)
 

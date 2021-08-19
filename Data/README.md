@@ -11,7 +11,7 @@ Below provides information and for each `*.csv` files within the `/Data` directo
 * temp - mean daily temperature (celcius)
 * rain - mean daily rainfall (mm)
 
-`SRER_daily_1975-2020.csv` used in `9_SRER_1975-2020_ppt.R` script contains daily precipitation from seven rain gauges between 1975 to 2000 distributed across the ~21,000-hectare SRER (Goodrich et al. 2008).
+`SRER_daily_1975-2020.csv` used in `9_SRER_1975-2020_ppt.R` script contains daily precipitation from seven rain gauges between 1975 to 2020 distributed across the ~21,000-hectare SRER (Goodrich et al. 2008).
 
 * gage - rain gauge number
 * date - date of recorded rainfall

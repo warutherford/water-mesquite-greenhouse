@@ -34,13 +34,13 @@ gh.temp$tx[gh.temp$tx == "wet"] <- "Wet"
 
 #group by variables and summarize moisture to get daily avgs
 gh.moist.mean <- gh.moist %>% 
-  dplyr::group_by(DOY,tx,depth) %>% 
-  summarise(moisture = 100 * mean(moisture)) %>% 
+  dplyr::group_by(DOY, tx, depth) %>% 
+  dplyr::summarise(moisture = 100 * mean(moisture)) %>% 
   dplyr::mutate(DOY = factor(DOY))
 
 gh.moist.se <- gh.moist %>% 
   dplyr::group_by(DOY,tx,depth) %>% 
-  summarise(moisture_mean =  100*mean(moisture),
+  dplyr::summarise(moisture_mean =  100*mean(moisture),
             moisture_se = 100*(sd(moisture)/sqrt(2)),
             m_se_hi = (moisture_mean + moisture_se),
             m_se_lo = (moisture_mean - moisture_se)) %>% 
@@ -120,28 +120,5 @@ moist2
 
 ggsave("Figures/soilmoist.tiff", plot = moist2, dpi = 1200, limitsize = FALSE)
 
-#group by variables and summarize temperature to get daily avgs
-gh.temp.sum <- gh.temp %>% 
-  group_by(DOY,tx) %>% 
-  summarise(avgtemp = mean(avgtemp),
-            maxtemp = mean(maxtemp),
-            mintemp = mean(mintemp)) %>% 
-  gather(key = "tempvar", value = "temp",-DOY, -tx)
-
-#soil temp graph
-temp <- ggline(gh.temp.sum, x="DOY", y="temp", merge = TRUE, plot_type = "l",
-                color = "tx",
-                palette = c("grey30","#DB4325","blue"),
-                xlab = "Day of Year",
-                ylab = expression(Temperature~textstyle("(")~C^{"o"}~textstyle(")")),
-                size = 1,
-                legend = "right",
-                legend.title = "Treatment")
-facet(temp, facet.by = "tempvar",
-      panel.labs = list(tempvar = c("Mean", "Maximum", "Minimum")),
-      ncol = 1,
-      nrow = 3,
-      scales = "free")
-#ggsave("Figures/soiltemp.tiff", dpi = 1200, limitsize = FALSE, width = 6, height = 6)
 
       

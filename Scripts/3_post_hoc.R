@@ -15,6 +15,7 @@ library(lattice)
 library(lme4)
 library(multcomp)
 library(multcompView)
+library(psych)
 
 #bring the data in
 gh <- read.csv(file = "Data/prve_gh_master_data.csv")
