@@ -17,10 +17,12 @@ Shrub seedling establishment in drylands characterized by low and variable rainf
 
 
 ### Folder Info/Details
+To open R scripts, run code, check output files, etc., clone the GitHub repository (in R terminal use `git clone https://github.com/warutherford/water-mesquite-greenhouse.git`) on your local machine with already Git installed and double-click the `GH_mesquite.Rproj` file to open the R project. Alternatively, you can download a `ZIP` folder of the entire repository and open the R project file under the `Code` tab above after unzipping/extracting the `ZIP` file. This assumes R/RStudio is currently installed on your machine.
+
 All scripts for analyses in the paper are in the `Scripts` directory. For details on a specific script and it's purpose, see the `Scripts/README.md`.
 
 Data for all analyses are in the `Data` directory. For details on a specific data set, see the `Data/README.md`.
 
 Statistical outputs (descriptive stats, MANOVA, ANOVA, and post-hoc tests) are in the `Output` directory. For details on a specific stat output file, see the `Output/README.md`. 
 
-The figures created in this manuscript are too large for GitHub, thus no `Figures` directory is provided in this repository. If you wish to write a figure to a `*.tiff` file using one of the scripts, you can either clone the repo locally and create a `Figures` directory, or change the file path in the script to your desired location/directory.
+The figures created in this manuscript are too large for GitHub, thus no `Figures` directory is provided in this repository. If you wish to write a figure to a `*.tiff` file using one of the scripts, you can either clone the repo locally and create a `Figures` directory, or you can change the file path in the script to your desired location/directory.
