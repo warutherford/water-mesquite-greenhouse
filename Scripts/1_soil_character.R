@@ -4,6 +4,11 @@
 #email: arutherford@email.arizona.edu
 #10/14/2020
 
+##install packages if needed, commented out since there are already installed
+# install.packages("tidyverse")
+# install.packages("agricolae")
+# install.packages("psych")
+
 ##load packages
 library(tidyverse)
 library(agricolae)

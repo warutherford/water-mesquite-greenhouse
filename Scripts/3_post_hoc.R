@@ -4,6 +4,20 @@
 #email: arutherford@email.arizona.edu
 #1/29/2020
 
+##install packages if needed, commented out since there are already installed
+# install.packages("tidyverse")
+# install.packages("pastecs")
+# install.packages("rcompanion")
+# install.packages("Rmisc")
+# install.packages("agricolae")
+# install.packages("emmeans")
+# install.packages("lattice")
+# install.packages("lme4")
+# install.packages("multcomp")
+# install.packages("multcompView")
+# install.packages("psych")
+
+
 ##load packages
 library(tidyverse)
 library(pastecs)

@@ -5,6 +5,11 @@
 # 2021-07-23
 # email: arutherford@email.arizona.edu
 
+##install packages if needed, commented out since there are already installed
+# install.packages("tidyverse")
+# install.packages("lubridate")
+# install.packages("ggpubr")
+
 ## load packages
 library(tidyverse)
 library(lubridate)

@@ -4,6 +4,14 @@
 #email: arutherford@email.arizona.edu
 #1/31/2020
 
+##install packages if needed, commented out since there are already installed
+# install.packages("tidyverse")
+# install.packages("ggpubr")
+# install.packages("pastecs")
+# install.packages("rcompanion")
+# install.packages("Rmisc")
+# install.packages("psych")
+
 ##load packages and force dplyr over plyr
 library(tidyverse)
 arrange <- dplyr::arrange
