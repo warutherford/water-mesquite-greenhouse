@@ -2,6 +2,7 @@
 # ignore folders that aren't scripts
 Figures/*
 renv/
+packrat/
 
 # History files
 .Rhistory
