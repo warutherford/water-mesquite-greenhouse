@@ -3,7 +3,7 @@
 Tabular data used in the manuscript titled, "Trait responses of a grassland shrub invader to altered moisture regimes."
 Authors: William A. Rutherford and Steven R. Archer
 
-Below provides information and for each `*.csv` files within the `/Data` directory:
+Below provides information for each `*.csv` files within the `/Data` directory:
 
 `2017-07_ppt.csv` used in `8_SRER_2017-07_ppt_fig_SIFig1.R` script from two Santa Rita Experimental Range (SRER) Desert Grassland Enclosure fiel-based HOBO Onset RG-2M Rain Gauge systems (Onset Computer Corporation, Bourne, MA).
 
@@ -121,7 +121,7 @@ Below provides information and for each `*.csv` files within the `/Data` directo
 * depth - soil depth in pot
 * moisture - volumetric water content (m3/m3)
 
-`soil_temp_daily.csv` used in the `7_soil_temp_moist_figs.R` script and pot soil temperature was measured with HOBO Pendant® Temperature sensors.
+`soil_temp_daily.csv` used in the `7_soil_temp_moist_figs.R` script, where pot soil temperatures were measured with HOBO Pendant® Temperature sensors.
 
 * date - date of recorded values
 * DOY - day of year (Julian Date)
