@@ -146,10 +146,10 @@ mean(predictions$class==test.transformed$tx)
 # Predicted classes
 head(predictions$class, 6)
 
-# Predicted probabilities of class memebership.
+# Predicted probabilities of class membership.
 head(predictions$posterior, 6) 
 
-# Linear discriminants
+# Linear discriminant
 head(predictions$x, 3) 
 
 #Graph LDA for all samples by points with ggplot2
@@ -166,8 +166,11 @@ ggplot(lda.data.all, aes(LD1, LD2)) +
   scale_fill_manual(values = c("Ambient" = "grey30",
                                  "Drought" = "#DB4325",
                                  "Wet" = "Blue"))+
+  ylab("LD2 (14.8%)") +
+  xlab("LD1 (85.2%)") +
   theme_pubr(legend = "none")+
   guides(fill=FALSE)
+
 ggsave("Figures/LDA_all.tiff", height = 4, width = 5, dpi = 1200) #save figure
 
 
