@@ -11,6 +11,8 @@
 # install.packages("forecast")
 # install.packages("rcompanion")
 # install.packages("psych")
+# install.packages("Hmisc")
+# install.packages("corrplot")
 
 ##load packages
 library(tidyverse)
@@ -19,6 +21,8 @@ library(vegan)
 library(forecast)
 library(rcompanion)
 library(psych)
+library(Hmisc)
+library(corrplot)
 
 #bring the data in
 gh <- read.csv(file = "Data/prve_gh_master_data.csv")
@@ -28,8 +32,71 @@ gh$sampling <- as.factor(gh$sampling)#make sampling period a factor
 summary(gh)
 glimpse(gh)
 
+# rename variables for graphing
+gh <- gh %>% rename(
+  Total_Root_Length = totrootlnth,
+  Root_Surface_Area = surfarea, 
+  Average_Root_Diameter = avgdiam,
+  Total_Root_Volume = rootvol,
+  Root_Crossings = crossings,
+  Root_Forks = forks,
+  Root_Tips = tips,
+  Maximum_Seedling_Height = maxht,
+  True_Leaves = truelvs,
+  Total_Leaflets = totlflts,
+  Leaf_Length = lflnth,
+  Lignin_Height = light,
+  Cotyledonary_Node_Height = cnode,
+  Thorns = thorns,
+  Dry_Leaf_Mass = dryleaf,
+  Leaf_Water_Content = lfwtr,
+  Fresh_Weight = wetsdling,
+  Dry_Seedling_Mass = drysdling,
+  Seedling_Water_Content = sdlingwtr,
+  Tap_Root_Length = taprootlnth,
+  Coarse_Root_Diameter = coarserootdiam,
+  Fine_Roots = fineroots,
+  Total_Root_Mass = rootwt,
+  Root_Shoot_Ratio = rootshoot,
+  Specific_Leaf_Area = sla,
+  Water_Potential = wp,
+  Anet = anet,
+  Conductance = cond,
+  Zero_Fivecm_Soil_GWC = fivegwc,
+  Five_Twentycm_Soil_GWC = twentygwc,
+  Absolute_Growth_Rate = agr,
+  Transpiration_Rate = trans
+)
+
 #create a matrix of only y-variables for manova
 Yvar = as.matrix(cbind(gh[,c(4:35)]))
+
+# Correlation plot of variables
+corvar <- cor(Yvar, use = "complete.obs") # ignore NAs
+
+corvar2 <- rcorr(as.matrix(Yvar), type = c("pearson"))
+
+corvar2$r # pearson's r
+corvar2$P # sig correlations
+
+cor_small <- as.data.frame(corvar2$r) %>% 
+  filter(. <= 0.90 & . >= -0.90)
+
+cor_small_mat <- as.matrix(cor_small)
+
+cor_small_sig <- as.data.frame(corvar2$P) %>% 
+  filter(. >= 0.05)
+
+# correlation plot of all variables
+corplot <- corrplot(cor_small_mat, is.corr = FALSE, type = "upper", order = "hclust", 
+                    tl.col = "black", tl.srt = 45)
+
+corplot <- corrplot(cor_small_mat, is.corr = FALSE)
+
+# insignificant correlations blank
+corplot_sig <- corrplot(corvar2$r, type="upper", order="alphabet", 
+         p.mat = corvar2$P, sig.level = 0.01, insig = "blank")
+
 
 ####Multivariate Normality test##
 norm <- t(gh[1:60,4:35])#transpose matrix
