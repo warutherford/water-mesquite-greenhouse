@@ -74,26 +74,27 @@ Yvar = as.matrix(cbind(gh[,c(4:35)]))
 # Correlation plot of variables
 corvar <- cor(Yvar, use = "complete.obs") # ignore NAs
 
-corvar2 <- rcorr(as.matrix(Yvar), type = c("pearson"))
+corvar2 <- rcorr(as.matrix(Yvar), type = c("pearson")) # get Pearson's r
 
-corvar2$r # pearson's r
-corvar2$P # sig correlations
+corvar2$r # pearson's r only
+corvar2$P # sig correlations only
 
 cor_small <- as.data.frame(corvar2$r) %>% 
-  filter(. <= 0.90 & . >= -0.90)
+  filter(. <= 0.90 & . >= -0.90) # pull out traits that are not highly correlated
 
-cor_small_mat <- as.matrix(cor_small)
+cor_small_mat <- as.matrix(cor_small) # make a matrix for plotting
 
-cor_small_sig <- as.data.frame(corvar2$P) %>% 
+cor_small_sig <- as.data.frame(corvar2$P) %>% # pull out the insig correlated variables
   filter(. >= 0.05)
 
 # correlation plot of all variables
-corplot <- corrplot(cor_small_mat, is.corr = FALSE, type = "upper", order = "hclust", 
+corplot_all <- corrplot(corvar2$r, type = "upper", order = "hclust", 
                     tl.col = "black", tl.srt = 45)
 
+# correlation plot of variables not highly correlated
 corplot <- corrplot(cor_small_mat, is.corr = FALSE)
 
-# insignificant correlations blank
+# insignificant correlations blank of all variables
 corplot_sig <- corrplot(corvar2$r, type="upper", order="alphabet", 
          p.mat = corvar2$P, sig.level = 0.01, insig = "blank")
 
