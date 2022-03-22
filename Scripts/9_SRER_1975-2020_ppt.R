@@ -28,7 +28,7 @@ as.factor(srer_daily$gage) -> srer_daily$gage
 srer_byday <- srer_daily %>%
   drop_na() %>% 
   group_by(date) %>% 
-  summarise(amt_mm_mean = mean(amt_mm),
+  dplyr::summarise(amt_mm_mean = mean(amt_mm),
             n = n(),
             amt_se = (sd(amt_mm)/sqrt(n)))
 
@@ -50,7 +50,7 @@ julymiss.1$miss<-ifelse(is.na(julymiss.1$amt_mm_mean), 1, 0)
 
 julymiss.2<-julymiss.1%>%
   group_by(year)%>%
-  summarise(misstot = sum(miss, na.rm=TRUE))
+  dplyr::summarise(misstot = sum(miss, na.rm=TRUE))
 
 #julymiss.2<-dplyr::filter(julymiss.2, misstot<15)
 july.2<-merge(julymiss.2, july.1, by = "year")
@@ -66,7 +66,7 @@ julytot.1 <- july.2 %>%
 #july ppt characteristics
 july_2017_tot <- july.2 %>%
   dplyr::filter(year == 2017) %>%
-  summarize(july_2017 = sum(amt_mm_mean, na.rm = TRUE))
+  dplyr::summarize(july_2017 = sum(amt_mm_mean, na.rm = TRUE))
 
 #defining 'event' as > 0.5 mm
 july.3 <- mutate(july.2,

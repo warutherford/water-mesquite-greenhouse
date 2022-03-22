@@ -26,12 +26,16 @@ monsoon_2017 <- srer_rain %>%
   dplyr::select(date, temp, rain) %>% 
   dplyr::filter(date >= "2017-07-09" & date <= "2017-08-03")
 
+# sum over start of monsoon
+monsoon_2017 %>% summarise(rain = sum(rain))
+
+# look at July only
 monsoon_2017_tot <- srer_rain %>% 
   dplyr::select(date, temp, rain) %>% 
   dplyr::filter(date >= "2017-07-01" & date <= "2017-07-31")
 
-# count events in range >0.5mm (22)
-tot_water_days <- monsoon_2017 %>% 
+# count events in range >0.5mm (21)
+tot_water_days <- monsoon_2017_tot %>% 
   dplyr::select(rain) %>% 
   dplyr::filter(rain >= 0.5) %>% 
   dplyr::summarise(tot_event = n())
