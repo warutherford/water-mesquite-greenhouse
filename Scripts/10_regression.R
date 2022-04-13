@@ -64,20 +64,6 @@ gh_perffunc <- gh_full %>% dplyr::select(-c(agr, dryleaf,drysdling,wetsdling,roo
 
 glimpse(gh_perffunc)
 
-#stepwise procedure
-step <- train(perf.comp ~ anet + totrootlnth + surfarea +avgdiam +rootvol +crossings+
-                forks +tips+ maxht+ truelvs+ totlflts+ lflnth +light+ cnode+ thorns+
-                lfwtr+ sdlingwtr +coarserootdiam +fineroots+sla+ wp+cond+  trans+
-                fivegwc+ twentygwc, data=gh_perffunc,
-              preProcess= c("center", "scale"),
-              method = "lmStepAIC",
-              trControl = trainControl(method="repeatedcv", repeats = 10),
-              na.action = 'na.omit')
-
-step$finalModel
-
-mod<-lm(perf.comp~surfarea+rootvol+crossings+truelvs+lflnth+sla+cond+trans+fivegwc, data = gh_perffunc, na.action = 'na.omit')
-summary(mod)
 
 # individual models for functional traits
 
@@ -113,6 +99,10 @@ rootvol<-summary(rootvol_mod)
 rootvol$r.squared
 rootvol$adj.r.squared
 rootvol$coefficients[2,4]
+
+# rootvol_aov <- aov(perf.comp ~ rootvol + rootvol*sampling*tx, data = na.omit(gh_scale))
+# rootvol_sum <- summary(rootvol_aov)
+# TukeyHSD(rootvol_aov, which = c('tx','sampling'))
 
 crossings_mod <- lm(perf.comp ~ crossings + crossings*sampling*tx, data = gh_scale)
 cross<-summary(crossings_mod)
@@ -246,36 +236,36 @@ twentygwc$r.squared
 twentygwc$adj.r.squared
 twentygwc$coefficients[2,4]
 
-sink(file = "Output/gh_stats_regression.txt")#create txt file
-# 
-tot$adj.r.squared
-sur$adj.r.squared
-avgdi$adj.r.squared
-rootvol$adj.r.squared
-cross$adj.r.squared
-forks$adj.r.squared
-tips$adj.r.squared
-maxht$adj.r.squared
-truelvs$adj.r.squared
-totlflts$adj.r.squared
-lflnth$adj.r.squared
-light$adj.r.squared
-cnode$adj.r.squared
-thorns$adj.r.squared
-lfwtr$adj.r.squared
-sdlingwtr$adj.r.squared
-taprootlnth$adj.r.squared
-coarserootdiam$adj.r.squared
-fineroots$adj.r.squared
-sla$adj.r.squared
-wp$adj.r.squared
-anet$adj.r.squared
-cond$adj.r.squared
-trans$adj.r.squared
-fivegwc$adj.r.squared
-twentygwc$adj.r.squared
-# 
-sink()#write to .txt file
+# sink(file = "Output/gh_stats_regression.txt")#create txt file
+# # 
+# tot$adj.r.squared
+# sur$adj.r.squared
+# avgdi$adj.r.squared
+# rootvol$adj.r.squared
+# cross$adj.r.squared
+# forks$adj.r.squared
+# tips$adj.r.squared
+# maxht$adj.r.squared
+# truelvs$adj.r.squared
+# totlflts$adj.r.squared
+# lflnth$adj.r.squared
+# light$adj.r.squared
+# cnode$adj.r.squared
+# thorns$adj.r.squared
+# lfwtr$adj.r.squared
+# sdlingwtr$adj.r.squared
+# taprootlnth$adj.r.squared
+# coarserootdiam$adj.r.squared
+# fineroots$adj.r.squared
+# sla$adj.r.squared
+# wp$adj.r.squared
+# anet$adj.r.squared
+# cond$adj.r.squared
+# trans$adj.r.squared
+# fivegwc$adj.r.squared
+# twentygwc$adj.r.squared
+# # 
+# sink()#write to .txt file
 
 
 

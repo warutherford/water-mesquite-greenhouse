@@ -37,7 +37,7 @@ glimpse(gh)
 Yvar = as.matrix(cbind(gh[,c(5:36)]))
 
 # Correlation plots of variables, data frame for each sampling and then all variables, normalized data
-
+# sampling 1
 covar_samp1 <- gh %>% filter(sampling == 1) %>% #dplyr::select(-light) %>%  # lig ht missing for 1st sample
   mutate(across(c(anet,totrootlnth, taprootlnth, surfarea,avgdiam,rootvol,crossings,
                   forks,tips, maxht,truelvs,totlflts,lflnth, cnode, thorns,
@@ -82,7 +82,8 @@ covar_samp1 <- gh %>% filter(sampling == 1) %>% #dplyr::select(-light) %>%  # li
   dplyr::select(pot, tx, sampling, loc, "Absolute Growth Rate", "Dried Leaf Mass",
                 "Dried Seedling Mass", "Fresh Weight", "Root:Shoot", "Total Root Mass", 
                 everything())
-    
+
+# sampling 2    
 covar_samp2 <- gh %>% filter(sampling == 2) %>% 
   mutate(across(c(anet,totrootlnth, taprootlnth, surfarea,avgdiam,rootvol,crossings,
                   forks,tips, maxht,truelvs,totlflts,lflnth,light, cnode, thorns,
@@ -128,7 +129,7 @@ covar_samp2 <- gh %>% filter(sampling == 2) %>%
                 "Dried Seedling Mass", "Fresh Weight", "Root:Shoot", "Total Root Mass", 
                 everything())
 
-
+# all variables
 gh_scale <- gh %>%
   mutate(across(c(anet,totrootlnth, taprootlnth, surfarea,avgdiam,rootvol,crossings,
                   forks,tips, maxht,truelvs,totlflts,lflnth,light, cnode, thorns,
@@ -174,6 +175,7 @@ gh_scale <- gh %>%
                 "Dried Seedling Mass", "Fresh Weight", "Root:Shoot", "Total Root Mass", 
                 everything())
 
+# break it out by PPTx for interest
 gh_drought <- gh_scale %>% filter(tx=="Drought")
 
 gh_ambient <- gh_scale %>% filter(tx=="Ambient")
@@ -216,28 +218,28 @@ day_11_cor<- ggcorrplot(c_test_1$r, method = "square", type = "full", ggtheme = 
            p.mat = c_test_1$p.adj, insig = "blank", lab = TRUE, lab_size = 12, hc.order = F, outline.color = "black",
            tl.cex = 54, pch.cex = 5, digits = 2, legend.title = "Pearson Corr")
 
-ggsave(filename = "Figures/day-ll-corr.tiff",
-       plot = day_11_cor,
-       dpi = 800,
-       width = 15,
-       height = 30,
-       scale = 3,
-       units = "cm",
-       compression = "lzw")
+# ggsave(filename = "Figures/day-ll-corr.tiff",
+#        plot = day_11_cor,
+#        dpi = 800,
+#        width = 15,
+#        height = 30,
+#        scale = 3,
+#        units = "cm",
+#        compression = "lzw")
 
 
 day_22_cor <- ggcorrplot(c_test_2$r, method = "square", type = "full", ggtheme = theme_bw, sig.level = 0.05,
            p.mat = c_test_2$p.adj, insig = "blank", lab = TRUE, lab_size = 12, hc.order = F, outline.color = "black",
             tl.cex = 54, pch.cex = 5, digits = 2, legend.title = "Pearson Corr")
 
-ggsave(filename = "Figures/day-22-corr.tiff",
-       plot = day_22_cor,
-       dpi = 800,
-       width = 15,
-       height = 30,
-       scale = 3,
-       units = "cm",
-       compression = "lzw")
+# ggsave(filename = "Figures/day-22-corr.tiff",
+#        plot = day_22_cor,
+#        dpi = 800,
+#        width = 15,
+#        height = 30,
+#        scale = 3,
+#        units = "cm",
+#        compression = "lzw")
 
 
 # below are correlation plots for all the data together, ambient, wet, and dry treatments respectively
@@ -256,7 +258,7 @@ ggcorrplot(c_test_dr$r, method = "square", type = "full", ggtheme = theme_bw, si
            p.mat = c_test_dr$p.adj, insig = "blank", lab = TRUE, lab_size = 3, hc.order = F, outline.color = "black",
            title = "Dry")
 
-# Correlagram test of wrapping by a factor 
+# Correlagram test of wrapping by a factor - test
 # for reproducibility
 # set.seed(123)
 # 
