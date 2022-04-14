@@ -216,7 +216,9 @@ c_test_wt <- corr.test(gh_wet[,c(5:10)], gh_wet[,c(11:36)], adjust = "holm")
 
 day_11_cor<- ggcorrplot(c_test_1$r, method = "square", type = "full", ggtheme = theme_bw(), sig.level = 0.05,
            p.mat = c_test_1$p.adj, insig = "blank", lab = TRUE, lab_size = 12, hc.order = F, outline.color = "black",
-           tl.cex = 54, pch.cex = 5, digits = 2, legend.title = "Pearson Corr")
+           tl.cex = 54, pch.cex = 5, digits = 2, legend.title = "Pearson Corr")+
+  theme(legend.position = "bottom",
+        legend.direction = "horizontal")
 
 # ggsave(filename = "Figures/day-ll-corr.tiff",
 #        plot = day_11_cor,
