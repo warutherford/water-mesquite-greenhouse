@@ -37,3 +37,7 @@ Calculate number of rain days and watering regime treatment amounts with Santa R
 * `9_SRER_1975-2020_ppt.R` 
 
 Calculate consecutive wet days and precipitation amount percentiles using daily precipitation from seven rain gauges between 1975 to 2020 distributed across the Santa Rita Experimental Range (Goodrich et al. 2008).
+
+* `10_regression.R` 
+
+Calculate additional regression analysis for performance vs functional traits.

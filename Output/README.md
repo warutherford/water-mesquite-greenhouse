@@ -8,4 +8,6 @@ This directory contains statistical outputs from the MANOVA, ANOVA, post-hoc, an
 
 `gh_stats_tukey.txt` contains the post-hoc tests with lettering reports for each trait created in the `3_post_hoc.R` script.
 
+`gh_stats_regression.txt` contains the regression tests for each trait created in the `10_regression.R` script.
+
 Descriptive stats provided in manuscript Table S1 was gathered using the `describeBy()` function in the `psych` package in the `3_post_hoc.R` script.
