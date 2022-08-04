@@ -15,6 +15,9 @@ library(tidyverse)
 library(caret)
 library(MASS)
 library(ggpubr)
+library(psych)
+library(FactoMineR)
+library(tidymodels)
 
 #set graphing/plotting theme
 theme_set(theme_classic())
@@ -57,6 +60,122 @@ test.transformed <- preproc.param %>% predict(test.data)
 # Fit the model, Linear Disc Analysis
 model_all <- lda(tx~., data = train.transformed)
 model_all
+
+
+# PCA test
+gh_1 <- gh_full %>% filter(sampling == 2)
+
+rec <- recipe(~., data = gh_1)
+pca_trans <- rec %>%
+  update_role(tx, sampling, loc, new_role = "id") %>% 
+  step_rm(wetsdling,rootwt,drysdling,dryleaf,agr,rootshoot) %>% 
+  step_naomit(all_numeric()) %>% 
+  step_nzv(all_numeric()) %>% 
+  step_normalize(all_predictors()) %>%
+  step_pca(all_predictors())
+
+pca <- prep(pca_trans)
+pca
+
+tidied_pca <-tidy(pca, 5)
+tidied_pca %>% arrange(desc(value))
+
+tidied_pca %>%
+  filter(component %in% paste0("PC", 1:5)) %>%
+  mutate(component = fct_inorder(component)) %>%
+  ggplot(aes(value, terms, fill = terms)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~component, nrow = 1) +
+  labs(y = NULL)
+
+tidied_pca %>%
+  filter(component %in% paste0("PC", 1:4)) %>%
+  group_by(component) %>%
+  top_n(10, abs(value)) %>%
+  ungroup() %>%
+  mutate(terms = reorder_within(terms, abs(value), component)) %>%
+  ggplot(aes(abs(value), terms, fill = value > 0)) +
+  geom_col() +
+  facet_wrap(~component, scales = "free_y") +
+  scale_y_reordered() +
+  labs(
+    x = "Absolute value of contribution",
+    y = NULL, fill = "Positive?"
+  )
+
+bake(pca, new_data = gh_full) %>%
+  ggplot(aes(PC1, PC2, label = sampling)) +
+  geom_point(aes(color = tx), alpha = 0.7, size = 2) +
+  geom_text(check_overlap = TRUE, hjust = "inward") +
+  stat_ellipse(aes(fill= tx),
+               alpha = 0.2,
+               geom = "polygon",
+               level=0.95)+
+  labs(color = NULL)
+
+gh_scale <- gh_full %>%
+  mutate(across(c(anet,totrootlnth, taprootlnth, surfarea,avgdiam,rootvol,crossings,
+                  forks,tips, maxht,truelvs,totlflts,lflnth,light, cnode, thorns,
+                  lfwtr, sdlingwtr,coarserootdiam,fineroots,sla, wp,cond,  trans,
+                  fivegwc, twentygwc, perf.comp), scales::rescale)) %>% 
+  rename(
+    "Total Root Length" = totrootlnth,
+    "Root Surface Area" = surfarea, 
+    "Average Root Diameter" = avgdiam,
+    "Total Root Volume" = rootvol,
+    "Root Crossings" = crossings,
+    "Root Forks" = forks,
+    "Root Tips" = tips,
+    "Max Seedling Height" = maxht,
+    "True Leaves" = truelvs,
+    "Total Leaflets" = totlflts,
+    "Leaf Length" = lflnth,
+    "Lignin Height" = light,
+    "Cotyledonary Node Height" = cnode,
+    "Thorns" = thorns,
+    "Dried Leaf Mass" = dryleaf,
+    "Leaf Water Content" = lfwtr,
+    "Fresh Weight" = wetsdling,
+    "Dried Seedling Mass" = drysdling,
+    "Seedling Water Content" = sdlingwtr,
+    "Tap Root Length" = taprootlnth,
+    "Coarse Root Diameter" = coarserootdiam,
+    "Fine Roots" = fineroots,
+    "Total Root Mass" = rootwt,
+    "Root:Shoot" = rootshoot,
+    "Specific Leaf Area" = sla,
+    "Water Potential" = wp,
+    "Anet" = anet,
+    "Conductance" = cond,
+    "0-5 cm Soil GWC" = fivegwc,
+    "5-20 cm Soil GWC" = twentygwc,
+    "Absolute Growth Rate" = agr,
+    "Transpiration Rate" = trans,
+    "Performance" = perf.comp
+  ) %>% 
+  ungroup() %>% 
+  dplyr::select(sort(tidyselect::peek_vars())) %>% 
+  dplyr::select(tx, sampling, loc, "Absolute Growth Rate", "Dried Leaf Mass",
+                "Dried Seedling Mass", "Fresh Weight", "Root:Shoot", "Total Root Mass", 
+                everything())
+
+re.all <- gh_scale %>% 
+  drop_na() %>% 
+  # filter(tx == "Ambient") %>% 
+  # filter(sampling == 2) %>% 
+  dplyr::select(c(-sampling, -loc)) %>% 
+  rownames_to_column(var = "id") %>%
+  unite("treat", id:tx) %>% 
+  column_to_rownames(var = "treat")
+  
+model_all_pca <- principal(re.all,2, rotate = "varimax", scores = TRUE)
+model_all_pca
+
+model_all_pca$values
+
+biplot(model_all_pca, labels = rownames(re.all))
+
+autoplot(model_all_pca)
 
 # model_small <- lda(tx~fineroots+crossings+forks+totrootlnth+surfarea+maxht+lflnth+rootvol+tips+taprootlnth, data = train.transformed)
 # model_small
