@@ -182,22 +182,22 @@ gh_ambient <- gh_scale %>% filter(tx=="Ambient")
 
 gh_wet <- gh_scale %>% filter(tx=="Wet")
 
-## Examine variables that aren't highly correlated
-# corvar2 <- corr.test(as.matrix(Yvar), adjust = "holm") # get Pearson's r
-# 
-# M<-corvar2$r # pearson's r only
-# p_mat<-corvar2$P # sig correlations only
-# 
-# cor_small <- as.data.frame(corvar2$r) %>% 
-#   filter(. <= 0.90) %>%  # pull out traits that are not highly correlated
-#   filter(. >= -0.90)
-#   
-# cor_small_mat <- as.matrix(cor_small) # make a matrix for plotting
-# 
-# # correlation plot of variables not highly correlated
-# ggcorrplot(cor_small_mat, method = "square", type = "upper", ggtheme = theme_bw,
-#                             lab = TRUE, lab_size = 3, hc.order = F, outline.color = "black",
-#                             title = "Day 22", tl.cex = 18, pch.cex = 5, digits = 2, legend.title = "Pearson Corr")
+# Examine variables that aren't highly correlated
+corvar2 <- corr.test(as.matrix(Yvar), adjust = "holm") # get Pearson's r
+
+M<-corvar2$r # pearson's r only
+p_mat<-corvar2$P # sig correlations only
+
+cor_small <- as.data.frame(corvar2$r) %>%
+  filter(. <= 0.90) %>%  # pull out traits that are not highly correlated
+  filter(. >= -0.90)
+
+cor_small_mat <- as.matrix(cor_small) # make a matrix for plotting
+
+# correlation plot of variables not highly correlated
+ggcorrplot(cor_small_mat, method = "square", type = "upper", ggtheme = theme_bw,
+                            lab = TRUE, lab_size = 3, hc.order = F, outline.color = "black",
+                            title = "Day 22", tl.cex = 18, pch.cex = 5, digits = 2, legend.title = "Pearson Corr")
 
 # corr tests by sampling and precip treatment
 
