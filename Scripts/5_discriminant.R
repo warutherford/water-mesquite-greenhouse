@@ -193,8 +193,9 @@ load_perf <- tidy_pca_perf %>%
   scale_y_reordered() +
   labs(
     x = "Loading Score (abs value)",
-    y = NULL, fill = "Positive?"
+    y = NULL, fill = "Sign"
   )+
+  scale_color_manual(labels = c("-", "+"), values = c("blue", "black")) +
   labs_pubr(base_size = 20)+
   theme_pubr(base_size = 20, x.text.angle = 45, legend = "right")
 
