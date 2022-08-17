@@ -213,7 +213,7 @@ c_test_am <- corr.test(gh_ambient[,c(5:10)], gh_ambient[,c(11:36)], adjust = "ho
 
 c_test_wt <- corr.test(gh_wet[,c(5:10)], gh_wet[,c(11:36)], adjust = "holm")
 
-
+# corration plots for day 11 and day 22 sampling
 day_11_cor<- ggcorrplot(c_test_1$r, method = "square", type = "full", ggtheme = theme_bw(), sig.level = 0.05,
            p.mat = c_test_1$p.adj, insig = "blank", lab = TRUE, lab_size = 12, hc.order = F, outline.color = "black",
            tl.cex = 54, pch.cex = 5, digits = 2, legend.title = "Pearson Corr")+
@@ -260,27 +260,14 @@ ggcorrplot(c_test_dr$r, method = "square", type = "full", ggtheme = theme_bw, si
            p.mat = c_test_dr$p.adj, insig = "blank", lab = TRUE, lab_size = 3, hc.order = F, outline.color = "black",
            title = "Dry")
 
-# Correlagram test of wrapping by a factor - test
-# for reproducibility
-# set.seed(123)
-# 
-# ## plot
-# t<-gh_scale %>% filter(sampling == 1) %>% 
-#   grouped_ggcorrmat(
-#   ## arguments relevant for `ggcorrmat`
-#   cor.vars = Total_Root_Length:Absolute_Growth_Rate,
-#   #data = gh_scale,
-#   type = "parametric", ## pearson corr
-#   grouping.var = tx,
-#   ## arguments relevant for `combine_plots`
-#   plotgrid.args = list(nrow = 3),
-#   annotation.args = list(
-#     tag_levels = "a",
-#     title = "",
-#     caption = ""
-#   ),
-#   output = "table"
-# )
+# Create a correlation matrix including the composite performance variable
+per_mat <- as.matrix(cbind(gh_full[,c(4:36)]))# gh_full is created in the "10_regression.R" script with the comp variable, needed to run this
+corvar_perf <- corr.test(as.matrix(per_mat), adjust = "holm") # get Pearson's r
+corvar_perf$r
+ggcorrplot(corvar_perf$r, method = "square", type = "lower", ggtheme = theme_pubr,
+           lab = TRUE, lab_size = 3, hc.order = F, outline.color = "black",
+           title = "", tl.cex = 18, pch.cex = 5, digits = 2, legend.title = "Pearson Corr")
+
 
 ####Multivariate Normality test##
 norm <- t(gh[1:60,4:35])#transpose matrix

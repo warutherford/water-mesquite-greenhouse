@@ -62,354 +62,6 @@ test.transformed <- preproc.param %>% predict(test.data)
 model_all <- lda(tx~., data = train.transformed)
 model_all
 
-
-# PCA with tidymodels
-# rename traits to graph better
-set.seed(42)
-gh_rename <- gh %>% 
-  rename(
-    "Total Root Length" = totrootlnth,
-    "Root Surface Area" = surfarea, 
-    "Average Root Diameter" = avgdiam,
-    "Total Root Volume" = rootvol,
-    "Root Crossings" = crossings,
-    "Root Forks" = forks,
-    "Root Tips" = tips,
-    "Max Seedling Height" = maxht,
-    "True Leaves" = truelvs,
-    "Total Leaflets" = totlflts,
-    "Leaf Length" = lflnth,
-    "Lignin Height" = light,
-    "Cotyledonary Node Height" = cnode,
-    "Thorns" = thorns,
-    "*Dried Leaf Mass" = dryleaf,
-    "Leaf Water Content" = lfwtr,
-    "*Fresh Weight" = wetsdling,
-    "*Dried Seedling Mass" = drysdling,
-    "Seedling Water Content" = sdlingwtr,
-    "Tap Root Length" = taprootlnth,
-    "Coarse Root Diameter" = coarserootdiam,
-    "Fine Roots" = fineroots,
-    "*Total Root Mass" = rootwt,
-    "*Root:Shoot" = rootshoot,
-    "Specific Leaf Area" = sla,
-    "Water Potential" = wp,
-    "Anet" = anet,
-    "Conductance" = cond,
-    "0-5 cm Soil GWC" = fivegwc,
-    "5-20 cm Soil GWC" = twentygwc,
-    "*Absolute Growth Rate" = agr,
-    "Transpiration Rate" = trans)
-
-#build base model/recipe 
-rec <- recipe(~., data = gh_rename)
-
-# build model with composite performance as y
-gh_rename_perf <- gh_full %>% 
-  rename(
-    "Total Root Length" = totrootlnth,
-    "Root Surface Area" = surfarea, 
-    "Average Root Diameter" = avgdiam,
-    "Total Root Volume" = rootvol,
-    "Root Crossings" = crossings,
-    "Root Forks" = forks,
-    "Root Tips" = tips,
-    "Max Seedling Height" = maxht,
-    "True Leaves" = truelvs,
-    "Total Leaflets" = totlflts,
-    "Leaf Length" = lflnth,
-    "Lignin Height" = light,
-    "Cotyledonary Node Height" = cnode,
-    "Thorns" = thorns,
-    "*Dried Leaf Mass" = dryleaf,
-    "Leaf Water Content" = lfwtr,
-    "*Fresh Weight" = wetsdling,
-    "*Dried Seedling Mass" = drysdling,
-    "Seedling Water Content" = sdlingwtr,
-    "Tap Root Length" = taprootlnth,
-    "Coarse Root Diameter" = coarserootdiam,
-    "Fine Roots" = fineroots,
-    "*Total Root Mass" = rootwt,
-    "*Root:Shoot" = rootshoot,
-    "Specific Leaf Area" = sla,
-    "Water Potential" = wp,
-    "Anet" = anet,
-    "Conductance" = cond,
-    "0-5 cm Soil GWC" = fivegwc,
-    "5-20 cm Soil GWC" = twentygwc,
-    "*Absolute Growth Rate" = agr,
-    "Transpiration Rate" = trans)
-
-rec2 <- recipe(perf.comp ~ ., data = gh_rename_perf)
-
-# build all processing steps for pca
-pca_trans <- rec %>%
-  update_role(tx, sampling, loc, new_role = "id") %>% 
-  step_naomit(all_numeric()) %>% 
-  step_nzv(all_numeric()) %>% 
-  step_normalize(all_predictors()) %>%
-  step_pca(all_predictors())
-
-pca_perf <- rec2 %>%
-  update_role(tx, sampling, loc, new_role = "id") %>% 
-  step_rm("*Absolute Growth Rate" ,"*Root:Shoot", "*Dried Seedling Mass",
-          "*Fresh Weight", "*Dried Leaf Mass", "*Total Root Mass") %>% 
-  step_naomit(all_numeric()) %>% 
-  step_nzv(all_numeric()) %>% 
-  step_normalize(all_predictors()) %>%
-  step_pca(all_predictors())
-
-pca_perf_p <- prep(pca_perf)
-pca_perf_p$steps[[5]]$res$sdev
-tidy_pca_perf <- tidy(pca_perf_p, 5, type="coef") #coef gives loadings
-sdev_perf <- pca_perf_p$steps[[5]]$res$sdev
-percent_variation_perf <- sdev_perf^2 / sum(sdev_perf^2)
-percent_variation_perf
-
-var_df_perf <- data.frame(PC=paste0("PC",1:length(sdev_perf)),
-                     var_explained=percent_variation_perf,
-                     stringsAsFactors = FALSE)
-
-var_df_perf %>%
-  mutate(PC = fct_inorder(PC)) %>%
-  ggplot(aes(x=PC,y=var_explained))+
-  geom_col()+
-  ylim(NA, 0.6)+
-  labs(x = "Principal Components", y = "Variance Explained")+
-  labs_pubr(base_size = 20)+
-  theme_pubr(base_size = 20, x.text.angle = 45)
-
-#ggsave("Figures/Supp_PCA_comp_perf.tiff", dpi = 1200, scale = 2)
-
-load_perf <- tidy_pca_perf %>% 
-  filter(component %in% paste0("PC", 1:2)) %>%
-  group_by(component) %>%
-  top_n(10, abs(value)) %>%
-  ungroup() %>%
-  mutate(terms = reorder_within(terms, abs(value), component)) %>%
-  ggplot(aes(abs(value), terms, fill = value > 0)) +
-  geom_col() +
-  facet_wrap(~component, scales = "free_y") +
-  scale_y_reordered() +
-  labs(
-    x = "Loading Score (abs value)",
-    y = NULL, fill = "Sign"
-  )+
-  scale_color_manual(labels = c("-", "+"), values = c("blue", "black")) +
-  labs_pubr(base_size = 20)+
-  theme_pubr(base_size = 20, x.text.angle = 45, legend = "right")
-
-load_perf
-
-#ggsave("Figures/Supp_PCA_load_perf.tiff", dpi = 1200, scale = 2)
-
-tidy_pca_perf %>%
-  filter(component %in% paste0("PC", 1:2)) %>%
-  mutate(component = fct_inorder(component)) %>%
-  filter(component == "PC1") %>% 
-  arrange(desc(abs(value))) %>% 
-  print(n=20)
-
-tidy_pca_perf %>%
-  filter(component %in% paste0("PC", 1:2)) %>%
-  mutate(component = fct_inorder(component)) %>%
-  ggplot(aes(value, terms, fill = terms)) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~component, nrow = 1) +
-  labs(y = NULL, x = "Score")+
-  labs_pubr(base_size = 20)+
-  theme_pubr(base_size = 20)
-
-pca_fig_perf <- bake(pca_perf_p, new_data = gh_rename_perf) %>%
-  ggplot(aes(PC1, PC2, label = sampling)) +
-  geom_point(aes(color = tx),alpha = 0.7, size = 10, show.legend = NA) +
-  geom_text(check_overlap = FALSE, hjust = "middle", size = 10, fontface = "bold") +
-  stat_ellipse(aes(fill= tx),
-               alpha = 0.1,
-               geom = "polygon",
-               level=0.95) +
-  scale_colour_manual(values = c("Ambient" = "grey30",
-                                 "Drought" = "#DB4325",
-                                 "Wet" = "Blue")) +
-  scale_fill_manual(values = c("Ambient" = "grey10",
-                               "Drought" = "#DB4325",
-                               "Wet" = "Blue")) +
-  ylim(-10, 10)+
-  labs(
-    x = "PC1 (45.6%)",
-    y = "PC2 (19.0%)") +
-  labs_pubr(base_size = 20)+
-  theme_pubr(base_size = 20)+
-  guides(color= guide_legend(title="Watering Treatment"),
-         fill =guide_legend(title="Watering Treatment"))
-
-pca_fig_perf
-
-#ggsave("Figures/Supp_PCA_perf.tiff", dpi = 1200, scale = 2)
-
-# prep recipe to get pca info
-pca <- prep(pca_trans)
-pca
-
-#look at model output components to examine
-names(pca)
-
-# pull out standard deviation to calc variance
-sdev <- pca$steps[[4]]$res$sdev
-
-# PC1 (0.5104), PC2 (0.1622), PC3 (0.0504)...big drop off after 1 & 2
-percent_variation <- sdev^2 / sum(sdev^2)
-percent_variation
-
-# plot all PC together to see which are the top
-var_df <- data.frame(PC=paste0("PC",1:length(sdev)),
-                     var_explained=percent_variation,
-                     stringsAsFactors = FALSE)
-
-var_df %>%
-  mutate(PC = fct_inorder(PC)) %>%
-  ggplot(aes(x=PC,y=var_explained))+
-  geom_col()+
-  ylim(NA, 0.6)+
-  labs(x = "Principal Components", y = "Variance Explained")+
-  labs_pubr(base_size = 20)+
-  theme_pubr(base_size = 20, x.text.angle = 45)
-
-#ggsave("Figures/Supp_PCA_comp.tiff", dpi = 1200, scale = 2)
-
-# pull out loadings
-tidied_pca <-tidy(pca, 4)
-tidied_pca %>% arrange(desc(value))
-
-# top for PC1 and PC2
-tidied_pca %>%
-  filter(component %in% paste0("PC", 1:2)) %>%
-  mutate(component = fct_inorder(component)) %>% 
-  arrange(desc(abs(value))) %>% 
-  print(n=20)
-
-# look at loading comparisons of traits between pc1 and pc2
-tidied_pca %>%
-  filter(component %in% paste0("PC", 1:2)) %>%
-  mutate(component = fct_inorder(component)) %>%
-  ggplot(aes(value, terms, fill = terms)) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~component, nrow = 1) +
-  labs(y = NULL, x = "Score")+
-  labs_pubr(base_size = 20)+
-  theme_pubr(base_size = 20)
-
-#ggsave("Figures/Supp_PCA_loadings.tiff", dpi = 1200, scale = 2)
-
-# look at top ten loadings for pc1 and 2
-#tidied_pca %>%
-tidy_pca_perf %>% 
-  filter(component %in% paste0("PC", 1:2)) %>%
-  group_by(component) %>%
-  top_n(20, abs(value)) %>%
-  ungroup() %>%
-  mutate(terms = reorder_within(terms, abs(value), component)) %>%
-  ggplot(aes(abs(value), terms, fill = value > 0)) +
-  geom_col() +
-  facet_wrap(~component, scales = "free_y") +
-  scale_y_reordered() +
-  labs(
-    x = "Absolute value of contribution",
-    y = NULL, fill = "Positive?"
-  )
-
-# create fig looking at groupings
-pca_fig <- bake(pca, new_data = gh_rename) %>%
-  ggplot(aes(PC1, PC2, label = sampling)) +
-  geom_point(aes(color = tx),alpha = 0.7, size = 10, show.legend = NA) +
-  geom_text(check_overlap = FALSE, hjust = "middle", size = 10, fontface = "bold") +
-  stat_ellipse(aes(fill= tx),
-               alpha = 0.1,
-               geom = "polygon",
-               level=0.95) +
-  scale_colour_manual(values = c("Ambient" = "grey30",
-                                 "Drought" = "#DB4325",
-                                 "Wet" = "Blue")) +
-  scale_fill_manual(values = c("Ambient" = "grey10",
-                               "Drought" = "#DB4325",
-                               "Wet" = "Blue")) +
-  ylim(-10, 10)+
-  labs(
-    x = "PC1 (51.0%)",
-    y = "PC2 (16.2%)") +
-  labs_pubr(base_size = 20)+
-  theme_pubr(base_size = 20)+
-  guides(color= guide_legend(title="Watering Treatment"),
-         fill =guide_legend(title="Watering Treatment"))
-
-pca_fig
-
-#ggsave("Figures/Supp_PCA.tiff", dpi = 1200, scale = 2)
-
-gh_scale <- gh_full %>%
-  mutate(across(c(anet,totrootlnth, taprootlnth, surfarea,avgdiam,rootvol,crossings,
-                  forks,tips, maxht,truelvs,totlflts,lflnth,light, cnode, thorns,
-                  lfwtr, sdlingwtr,coarserootdiam,fineroots,sla, wp,cond,  trans,
-                  fivegwc, twentygwc, perf.comp), scales::rescale)) %>% 
-  rename(
-    "Total Root Length" = totrootlnth,
-    "Root Surface Area" = surfarea, 
-    "Average Root Diameter" = avgdiam,
-    "Total Root Volume" = rootvol,
-    "Root Crossings" = crossings,
-    "Root Forks" = forks,
-    "Root Tips" = tips,
-    "Max Seedling Height" = maxht,
-    "True Leaves" = truelvs,
-    "Total Leaflets" = totlflts,
-    "Leaf Length" = lflnth,
-    "Lignin Height" = light,
-    "Cotyledonary Node Height" = cnode,
-    "Thorns" = thorns,
-    "Dried Leaf Mass" = dryleaf,
-    "Leaf Water Content" = lfwtr,
-    "Fresh Weight" = wetsdling,
-    "Dried Seedling Mass" = drysdling,
-    "Seedling Water Content" = sdlingwtr,
-    "Tap Root Length" = taprootlnth,
-    "Coarse Root Diameter" = coarserootdiam,
-    "Fine Roots" = fineroots,
-    "Total Root Mass" = rootwt,
-    "Root:Shoot" = rootshoot,
-    "Specific Leaf Area" = sla,
-    "Water Potential" = wp,
-    "Anet" = anet,
-    "Conductance" = cond,
-    "0-5 cm Soil GWC" = fivegwc,
-    "5-20 cm Soil GWC" = twentygwc,
-    "Absolute Growth Rate" = agr,
-    "Transpiration Rate" = trans,
-    "Performance" = perf.comp
-  ) %>% 
-  ungroup() %>% 
-  dplyr::select(sort(tidyselect::peek_vars())) %>% 
-  dplyr::select(tx, sampling, loc, "Absolute Growth Rate", "Dried Leaf Mass",
-                "Dried Seedling Mass", "Fresh Weight", "Root:Shoot", "Total Root Mass", 
-                everything())
-
-re.all <- gh_scale %>% 
-  drop_na() %>% 
-  # filter(tx == "Ambient") %>% 
-  # filter(sampling == 2) %>% 
-  dplyr::select(c(-sampling, -loc)) %>% 
-  rownames_to_column(var = "id") %>%
-  unite("treat", id:tx) %>% 
-  column_to_rownames(var = "treat")
-  
-model_all_pca <- principal(re.all,2, rotate = "varimax", scores = TRUE)
-model_all_pca
-
-model_all_pca$values
-
-biplot(model_all_pca, labels = rownames(re.all))
-
-autoplot(model_all_pca)
-
 # model_small <- lda(tx~fineroots+crossings+forks+totrootlnth+surfarea+maxht+lflnth+rootvol+tips+taprootlnth, data = train.transformed)
 # model_small
 
@@ -623,4 +275,303 @@ ggplot(lda.data.all, aes(LD1, LD2)) +
 
 #ggsave("Figures/LDA_all.tiff", height = 4, width = 5, dpi = 1200) #save figure
 
+### PCA with tidymodels
+# rename traits to graph better
+set.seed(42)
+gh_rename <- gh %>% 
+  rename(
+    "Total Root Length" = totrootlnth,
+    "Root Surface Area" = surfarea, 
+    "Average Root Diameter" = avgdiam,
+    "Total Root Volume" = rootvol,
+    "Root Crossings" = crossings,
+    "Root Forks" = forks,
+    "Root Tips" = tips,
+    "Max Seedling Height" = maxht,
+    "True Leaves" = truelvs,
+    "Total Leaflets" = totlflts,
+    "Leaf Length" = lflnth,
+    "Lignin Height" = light,
+    "Cotyledonary Node Height" = cnode,
+    "Thorns" = thorns,
+    "*Dried Leaf Mass" = dryleaf,
+    "Leaf Water Content" = lfwtr,
+    "*Fresh Weight" = wetsdling,
+    "*Dried Seedling Mass" = drysdling,
+    "Seedling Water Content" = sdlingwtr,
+    "Tap Root Length" = taprootlnth,
+    "Coarse Root Diameter" = coarserootdiam,
+    "Fine Roots" = fineroots,
+    "*Total Root Mass" = rootwt,
+    "*Root:Shoot" = rootshoot,
+    "Specific Leaf Area" = sla,
+    "Water Potential" = wp,
+    "Anet" = anet,
+    "Conductance" = cond,
+    "0-5 cm Soil GWC" = fivegwc,
+    "5-20 cm Soil GWC" = twentygwc,
+    "*Absolute Growth Rate" = agr,
+    "Transpiration Rate" = trans)
 
+# build model with composite performance as y
+gh_rename_perf <- gh_full %>% 
+  rename(
+    "Total Root Length" = totrootlnth,
+    "Root Surface Area" = surfarea, 
+    "Average Root Diameter" = avgdiam,
+    "Total Root Volume" = rootvol,
+    "Root Crossings" = crossings,
+    "Root Forks" = forks,
+    "Root Tips" = tips,
+    "Max Seedling Height" = maxht,
+    "True Leaves" = truelvs,
+    "Total Leaflets" = totlflts,
+    "Leaf Length" = lflnth,
+    "Lignin Height" = light,
+    "Cotyledonary Node Height" = cnode,
+    "Thorns" = thorns,
+    "*Dried Leaf Mass" = dryleaf,
+    "Leaf Water Content" = lfwtr,
+    "*Fresh Weight" = wetsdling,
+    "*Dried Seedling Mass" = drysdling,
+    "Seedling Water Content" = sdlingwtr,
+    "Tap Root Length" = taprootlnth,
+    "Coarse Root Diameter" = coarserootdiam,
+    "Fine Roots" = fineroots,
+    "*Total Root Mass" = rootwt,
+    "*Root:Shoot" = rootshoot,
+    "Specific Leaf Area" = sla,
+    "Water Potential" = wp,
+    "Anet" = anet,
+    "Conductance" = cond,
+    "0-5 cm Soil GWC" = fivegwc,
+    "5-20 cm Soil GWC" = twentygwc,
+    "*Absolute Growth Rate" = agr,
+    "Transpiration Rate" = trans)
+
+# PCA model as performance as dependent variable
+rec2 <- recipe(perf.comp ~ ., data = gh_rename_perf)
+
+# pca steps, remove performance variables (using composite), remove missing data,
+# remove no variance predictors, normalize data
+pca_perf <- rec2 %>%
+  update_role(tx, sampling, loc, new_role = "id") %>% 
+  step_rm("*Absolute Growth Rate" ,"*Root:Shoot", "*Dried Seedling Mass",
+          "*Fresh Weight", "*Dried Leaf Mass", "*Total Root Mass") %>% 
+  step_naomit(all_numeric()) %>% 
+  step_nzv(all_numeric()) %>% 
+  step_normalize(all_predictors()) %>%
+  step_pca(all_predictors())
+
+# run PCA
+pca_perf_p <- prep(pca_perf)
+
+# pull st dev
+pca_perf_p$steps[[5]]$res$sdev
+
+# get loading scores
+tidy_pca_perf <- tidy(pca_perf_p, 5, type="coef") #coef gives loadings
+
+
+sdev_perf <- pca_perf_p$steps[[5]]$res$sdev
+
+# calculated percent variation attributed to each PC
+percent_variation_perf <- sdev_perf^2 / sum(sdev_perf^2)
+percent_variation_perf
+
+# create data frame of each PC for plottting
+var_df_perf <- data.frame(PC=paste0("PC",1:length(sdev_perf)),
+                          var_explained=percent_variation_perf,
+                          stringsAsFactors = FALSE)
+
+# plot all 32 PCs to see if 1 and 2 capture the most
+var_df_perf %>%
+  mutate(PC = fct_inorder(PC)) %>%
+  ggplot(aes(x=PC,y=var_explained))+
+  geom_col()+
+  ylim(NA, 0.6)+
+  labs(x = "Principal Components", y = "Variance Explained")+
+  labs_pubr(base_size = 20)+
+  theme_pubr(base_size = 20, x.text.angle = 45)
+
+#ggsave("Figures/Supp_PCA_comp_perf.tiff", dpi = 1200, scale = 2)
+
+# look at sign of traits on PC 1 and 2
+load_perf <- tidy_pca_perf %>% 
+  filter(component %in% paste0("PC", 1:2)) %>%
+  group_by(component) %>%
+  top_n(10, abs(value)) %>%
+  ungroup() %>%
+  mutate(terms = reorder_within(terms, abs(value), component)) %>%
+  ggplot(aes(abs(value), terms, fill = value > 0)) +
+  geom_col() +
+  facet_wrap(~component, scales = "free_y") +
+  scale_y_reordered() +
+  labs(
+    x = "Loading Score (abs value)",
+    y = NULL, fill = "Sign"
+  )+
+  scale_color_manual(labels = c("-", "+"), values = c("blue", "black")) +
+  labs_pubr(base_size = 20)+
+  theme_pubr(base_size = 20, x.text.angle = 45, legend = "right")
+
+load_perf
+
+#ggsave("Figures/Supp_PCA_load_perf.tiff", dpi = 1200, scale = 2)
+
+# look at abs value of loading scores
+tidy_pca_perf %>%
+  filter(component %in% paste0("PC", 1:2)) %>%
+  mutate(component = fct_inorder(component)) %>%
+  filter(component == "PC1") %>% 
+  arrange(desc(abs(value))) %>% 
+  print(n=20)
+
+# look at contribution to PC1 and PC2
+tidy_pca_perf %>%
+  filter(component %in% paste0("PC", 1:2)) %>%
+  mutate(component = fct_inorder(component)) %>%
+  ggplot(aes(value, terms, fill = terms)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~component, nrow = 1) +
+  labs(y = NULL, x = "Score")+
+  labs_pubr(base_size = 20)+
+  theme_pubr(base_size = 20)
+
+# PCA if (composite performance as dependent)
+pca_fig_perf <- bake(pca_perf_p, new_data = gh_rename_perf) %>%
+  ggplot(aes(PC1, PC2, label = sampling)) +
+  geom_point(aes(color = tx),alpha = 0.7, size = 10, show.legend = NA) +
+  geom_text(check_overlap = FALSE, hjust = "middle", size = 10, fontface = "bold") +
+  stat_ellipse(aes(fill= tx),
+               alpha = 0.1,
+               geom = "polygon",
+               level=0.95) +
+  scale_colour_manual(values = c("Ambient" = "grey30",
+                                 "Drought" = "#DB4325",
+                                 "Wet" = "Blue")) +
+  scale_fill_manual(values = c("Ambient" = "grey10",
+                               "Drought" = "#DB4325",
+                               "Wet" = "Blue")) +
+  ylim(-10, 10)+
+  labs(
+    x = "PC1 (45.6%)",
+    y = "PC2 (19.0%)") +
+  labs_pubr(base_size = 20)+
+  theme_pubr(base_size = 20)+
+  guides(color= guide_legend(title="Watering Treatment"),
+         fill =guide_legend(title="Watering Treatment"))
+
+pca_fig_perf
+
+#ggsave("Figures/Supp_PCA_perf.tiff", dpi = 1200, scale = 2)
+
+
+### build base model/recipe (all traits)
+rec <- recipe(~., data = gh_rename)
+
+# build all processing steps for pca
+pca_trans <- rec %>%
+  update_role(tx, sampling, loc, new_role = "id") %>% 
+  step_naomit(all_numeric()) %>% 
+  step_nzv(all_numeric()) %>% 
+  step_normalize(all_predictors()) %>%
+  step_pca(all_predictors())
+
+# prep recipe to get pca info
+pca <- prep(pca_trans)
+pca
+
+#look at model output components to examine
+names(pca)
+
+# pull out standard deviation to calc variance
+sdev <- pca$steps[[4]]$res$sdev
+
+# PC1 (0.5104), PC2 (0.1622), PC3 (0.0504)...big drop off after 1 & 2
+percent_variation <- sdev^2 / sum(sdev^2)
+percent_variation
+
+# plot all PC together to see which are the top
+var_df <- data.frame(PC=paste0("PC",1:length(sdev)),
+                     var_explained=percent_variation,
+                     stringsAsFactors = FALSE)
+
+var_df %>%
+  mutate(PC = fct_inorder(PC)) %>%
+  ggplot(aes(x=PC,y=var_explained))+
+  geom_col()+
+  ylim(NA, 0.6)+
+  labs(x = "Principal Components", y = "Variance Explained")+
+  labs_pubr(base_size = 20)+
+  theme_pubr(base_size = 20, x.text.angle = 45)
+
+#ggsave("Figures/Supp_PCA_comp.tiff", dpi = 1200, scale = 2)
+
+# pull out loadings
+tidied_pca <-tidy(pca, 4)
+tidied_pca %>% arrange(desc(value))
+
+# top for PC1 and PC2
+tidied_pca %>%
+  filter(component %in% paste0("PC", 1:2)) %>%
+  mutate(component = fct_inorder(component)) %>% 
+  arrange(desc(abs(value))) %>% 
+  print(n=20)
+
+# look at loading comparisons of traits between pc1 and pc2
+tidied_pca %>%
+  filter(component %in% paste0("PC", 1:2)) %>%
+  mutate(component = fct_inorder(component)) %>%
+  ggplot(aes(value, terms, fill = terms)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~component, nrow = 1) +
+  labs(y = NULL, x = "Score")+
+  labs_pubr(base_size = 20)+
+  theme_pubr(base_size = 20)
+
+#ggsave("Figures/Supp_PCA_loadings.tiff", dpi = 1200, scale = 2)
+
+# look at top ten loadings for pc1 and 2
+tidied_pca %>%
+  filter(component %in% paste0("PC", 1:2)) %>%
+  group_by(component) %>%
+  top_n(10, abs(value)) %>%
+  ungroup() %>%
+  mutate(terms = reorder_within(terms, abs(value), component)) %>%
+  ggplot(aes(abs(value), terms, fill = value > 0)) +
+  geom_col() +
+  facet_wrap(~component, scales = "free_y") +
+  scale_y_reordered() +
+  labs(
+    x = "Absolute value of contribution",
+    y = NULL, fill = "Positive?"
+  )
+
+# create fig looking at groupings
+pca_fig <- bake(pca, new_data = gh_rename) %>%
+  ggplot(aes(PC1, PC2, label = sampling)) +
+  geom_point(aes(color = tx),alpha = 0.7, size = 10, show.legend = NA) +
+  geom_text(check_overlap = FALSE, hjust = "middle", size = 10, fontface = "bold") +
+  stat_ellipse(aes(fill= tx),
+               alpha = 0.1,
+               geom = "polygon",
+               level=0.95) +
+  scale_colour_manual(values = c("Ambient" = "grey30",
+                                 "Drought" = "#DB4325",
+                                 "Wet" = "Blue")) +
+  scale_fill_manual(values = c("Ambient" = "grey10",
+                               "Drought" = "#DB4325",
+                               "Wet" = "Blue")) +
+  ylim(-10, 10)+
+  labs(
+    x = "PC1 (51.0%)",
+    y = "PC2 (16.2%)") +
+  labs_pubr(base_size = 20)+
+  theme_pubr(base_size = 20)+
+  guides(color= guide_legend(title="Watering Treatment"),
+         fill =guide_legend(title="Watering Treatment"))
+
+pca_fig
+
+#ggsave("Figures/Supp_PCA.tiff", dpi = 1200, scale = 2)

@@ -8,7 +8,7 @@ Summarize and calculate base statistics of soil chemistry and characterization v
 
 * `2_two_way_manova.R` 
 
-Two-way MANOVA calculation for Table 2, and root volume ANOVA provided in SI Table S2.
+Pearson Correlations, Two-way MANOVA calculation for Table 2, and root volume ANOVA provided in SI Table S2.
 
 * `3_post_hoc.R`
 
@@ -21,6 +21,7 @@ Summarize seed germination data and ANOVA and post-hoc of watering regime treatm
 * `5_discriminant.R` 
 
 Linear Discriminant Analysis of watering regimes and seedling traits including creation of Figures 5, 6a, and 6b.
+Principal Component Analysis in Supplemental Information (Figures S3-S6).
 
 * `6_gh_plots.R` 
 
@@ -40,4 +41,4 @@ Calculate consecutive wet days and precipitation amount percentiles using daily 
 
 * `10_regression.R` 
 
-Calculate additional regression analysis for performance vs functional traits.
+Calculate additional regression analysis for performance vs functional traits, contains the creation of the composite performance variable used in other analyses.
