@@ -1,6 +1,8 @@
 # water-mesquite-greenhouse
 Repository for "Trait responses of a grassland shrub invader to altered moisture regimes" manuscript
 
+[![DOI](https://zenodo.org/badge/386100148.svg)](https://zenodo.org/badge/latestdoi/386100148)
+
 # Abstract
 
 ## Aims
